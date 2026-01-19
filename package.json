@@ -1,0 +1,26 @@
+{
+  "name": "toggle",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "homepage": "https://github.com/Kinder0102/toggle#readme",
+  "bugs": {
+    "url": "https://github.com/Kinder0102/toggle/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kinder0102/toggle.git"
+  },
+  "license": "ISC",
+  "author": "Kinder0102",
+  "main": "./src/index.js",
+  "scripts": {
+    "build": "esbuild ./src/index.js --bundle --sourcemap --minify --outfile=./dist/toggle.min.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.0"
+  },
+  "dependencies": {
+    "js-common": "github:Kinder0102/js-common"
+  }
+}
