@@ -1,3 +1,5 @@
+import { HTML_CHECKBOX, HTML_RADIO } from 'js-common/js-constant'
+
 import {
     assert,
     hasValue,
@@ -13,6 +15,7 @@ import {
 } from 'js-common/js-utils'
 
 import {
+    elementIs,
     addClass,
     getTargets,
     hasClass,
@@ -55,6 +58,7 @@ const TYPE_HANDLERS = {
 let ACTION_HANDLERS = {
     dismiss: (target, payload) => handleElement(target, payload, 'remove'),
     focus: (target, payload) => handleElement(target, payload, 'focus'),
+    clear: handleClear,
     filter: handleFilter,
     toggle: handleToggle,
     show: (target, payload) => handleToggle(target, payload, true),
@@ -100,13 +104,16 @@ class Toggle {
         addClass(el, INIT_CLASS_NAME)
 
         if (isTrue(this.#datasetHelper.getValue(el, 'open'))) {
-            Toggle.SUPPORTED_EVENTS.forEach(name => this.#run(this.#triggerProps[name]))
+            Toggle.SUPPORTED_EVENTS.forEach(name => this.#run(this.#triggerProps[name], ['clear']))
         }
     }
 
-    #run(props) {
+    #run(props, skip = []) {
         const showTarget = []
         for (const [action, target] of objectEntries(props)) {
+            if (skip.includes(action))
+                continue
+
             ACTION_HANDLERS[action]?.(target, this.#payload)
             if (SHOW_ACTION.has(action))
                 showTarget.push(...target)
@@ -139,8 +146,30 @@ function handleElement(target, { root }, methodName) {
     getTargets(target, root).forEach(el => el[methodName]())
 }
 
+function handleClear(target, { root }) {
+    getTargets(target, root).forEach(el => {
+        querySelector('input, select, textarea', el, true).forEach(input => {
+            switch (input.type) {
+                case 'checkbox':
+                case 'radio':
+                    input.checked = false
+                    break
+                case 'select-one':
+                case 'select-multiple':
+                    input.selectedIndex = -1
+                    break;
+                default:
+                    input.value = ''
+            }
+        })
+    })
+}
+
 function handleFilter(target, payload) {
     const { root, datasetHelper } = payload
+    if (elementIs(root, [HTML_CHECKBOX, HTML_RADIO]) && !root.checked)
+        return
+
     getTargets(target, root).forEach(el => {
         const props = createProperty(datasetHelper.getValue(el, 'filter'))[0]
         handleToggle(el, payload, props.value.includes(root.value))
