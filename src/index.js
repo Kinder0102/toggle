@@ -93,10 +93,7 @@ class Toggle {
         for (const [eventName, value] of objectEntries(this.#triggerProps)) {
             const props = createProperty(value)[0]
             this.#triggerProps[eventName] = props
-            registerEvent(el, eventName, event => {
-                stopDefaultEvent(event)
-                this.#run(props)
-            })
+            registerEvent(el, eventName, event => this.#run(props))
         }
 
         el.style.cursor = 'pointer'
