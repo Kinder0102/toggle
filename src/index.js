@@ -100,7 +100,7 @@ class Toggle {
         el.style.userSelect = 'none'
         addClass(el, INIT_CLASS_NAME)
 
-        if (isTrue(this.#datasetHelper.getValue(el, 'open'))) {
+        if (el.hasAttribute(this.#datasetHelper.keyToAttrName('open'))) {
             Toggle.SUPPORTED_EVENTS.forEach(name => this.#run(this.#triggerProps[name], ['clear']))
         }
     }
@@ -167,9 +167,10 @@ function handleFilter(target, payload) {
     if (elementIs(root, [HTML_CHECKBOX, HTML_RADIO]) && !root.checked)
         return
 
+    const value = root.value || root.querySelector('input,select,textarea,[value]')?.value
     getTargets(target, root).forEach(el => {
         const props = createProperty(datasetHelper.getValue(el, 'filter'))[0]
-        handleToggle(el, payload, props.value.includes(root.value))
+        handleToggle(el, payload, props.value.includes(value))
     })
 }
 
