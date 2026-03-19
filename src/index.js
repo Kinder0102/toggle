@@ -110,8 +110,15 @@ class Toggle {
         for (const [action, target] of objectEntries(props)) {
             if (skip.includes(action))
                 continue
+            
+            let payload = this.#payload
+            const selectItem = payload.root?.selectedOptions?.[0]
+            if (isElement(selectItem)) {
+                const attr = payload.datasetHelper.resolveValues(selectItem, 'attr')
+                payload = { ...payload, attr }
+            }
 
-            ACTION_HANDLERS[action]?.(target, this.#payload)
+            ACTION_HANDLERS[action]?.(target, payload)
             if (SHOW_ACTION.has(action))
                 showTarget.push(...target)
         }
