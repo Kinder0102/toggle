@@ -101,7 +101,9 @@ class Toggle {
         addClass(el, INIT_CLASS_NAME)
 
         if (el.hasAttribute(this.#datasetHelper.keyToAttrName('open'))) {
-            Toggle.SUPPORTED_EVENTS.forEach(name => this.#run(this.#triggerProps[name], ['clear']))
+            const isOpen = this.#datasetHelper.getValue(el, 'open')
+            if (isTrue(isOpen) || !hasValue(isOpen))
+                Toggle.SUPPORTED_EVENTS.forEach(name => this.#run(this.#triggerProps[name], ['clear']))
         }
     }
 
