@@ -34,6 +34,9 @@ const CLASS_NAME = 'toggle'
 const INIT_CLASS_NAME = `${CLASS_NAME}-initialized`
 const INSIDE_CLASS_NAME = `${CLASS_NAME}-inside`
 const OUTSIDE_CLASS_NAME = `${CLASS_NAME}-outside`
+
+const TRIGGER_EVENT_NAME = `${CLASS_NAME}:trigger`
+
 const SHOW_ACTION = new Set(['show', 'hide', 'toggle'])
 const TYPE_HANDLERS = {
     'class': {
@@ -93,7 +96,7 @@ class Toggle {
         for (const [eventName, value] of objectEntries(this.#triggerProps)) {
             const props = createProperty(value)[0]
             this.#triggerProps[eventName] = props
-            registerEvent(el, eventName, event => this.#run(props))
+            registerEvent(el, [eventName, TRIGGER_EVENT_NAME], event => this.#run(props))
         }
 
         el.style.cursor = 'pointer'
