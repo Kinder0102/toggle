@@ -35,6 +35,7 @@ const INIT_CLASS_NAME = `${CLASS_NAME}-initialized`
 const INSIDE_CLASS_NAME = `${CLASS_NAME}-inside`
 const OUTSIDE_CLASS_NAME = `${CLASS_NAME}-outside`
 
+const INPUT_SELECTOR = 'input, select, textarea, [contenteditable="true"]'
 const TRIGGER_EVENT_NAME = `${CLASS_NAME}:trigger`
 
 const SHOW_ACTION = new Set(['show', 'hide', 'toggle'])
@@ -62,6 +63,7 @@ let ACTION_HANDLERS = {
     dismiss: (target, payload) => handleElement(target, payload, 'remove'),
     focus: (target, payload) => handleElement(target, payload, 'focus'),
     clear: handleClear,
+    reset: handleReset,
     filter: handleFilter,
     toggle: handleToggle,
     show: (target, payload) => handleToggle(target, payload, true),
@@ -115,7 +117,7 @@ class Toggle {
         for (const [action, target] of objectEntries(props)) {
             if (skip.includes(action))
                 continue
-            
+
             let payload = this.#payload
             const selectItem = payload.root?.selectedOptions?.[0]
             if (isElement(selectItem)) {
@@ -157,7 +159,7 @@ function handleElement(target, { root }, methodName) {
 
 function handleClear(target, { root }) {
     getTargets(target, root).forEach(el => {
-        querySelector('input, select, textarea', el, true).forEach(input => {
+        querySelector(INPUT_SELECTOR, el, true).forEach(input => {
             switch (input.type) {
                 case 'checkbox':
                 case 'radio':
@@ -168,7 +170,35 @@ function handleClear(target, { root }) {
                     input.selectedIndex = -1
                     break;
                 default:
-                    input.value = ''
+                    if (input.matches('[contenteditable="true"]')) {
+                        input.textContent = ''
+                    } else {
+                        input.value = ''
+                    }
+            }
+        })
+    })
+}
+
+function handleReset(target, { root }) {
+    getTargets(target, root).forEach(el => {
+        querySelector(INPUT_SELECTOR, el, true).forEach(input => {
+            switch (input.type) {
+                case 'checkbox':
+                case 'radio':
+                    input.checked = checkbox.defaultChecked;
+                    break
+                case 'select-one':
+                case 'select-multiple':
+                    Array.from(input.options).forEach(option => (option.selected = option.defaultSelected));
+                    break;
+                default:
+                    const value = input.defaultValue || input.dataset.originalValue || ''
+                    if (input.matches('[contenteditable="true"]')) {
+                        input.textContent = value
+                    } else {
+                        input.value = value
+                    }
             }
         })
     })
