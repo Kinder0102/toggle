@@ -54,6 +54,7 @@ const TYPE_HANDLERS = {
         },
         setValue: (el, name, flag, values) => {
             const value = values[isTrue(flag)]
+            el[name] = value
             hasValue(value) ? el.setAttribute(name, value) : el.removeAttribute(name)
         }
     }
@@ -96,7 +97,7 @@ class Toggle {
         }
 
         for (const [eventName, value] of objectEntries(this.#triggerProps)) {
-            const props = createProperty(value)[0]
+            const props = createProperty(value)
             this.#triggerProps[eventName] = props
             registerEvent(el, [eventName, TRIGGER_EVENT_NAME], event => this.#run(props))
         }
@@ -211,7 +212,7 @@ function handleFilter(target, payload) {
 
     const value = root.value || root.querySelector('input,select,textarea,[value]')?.value
     getTargets(target, root).forEach(el => {
-        const props = createProperty(datasetHelper.getValue(el, 'filter'))[0]
+        const props = createProperty(datasetHelper.getValue(el, 'filter'))
         handleToggle(el, payload, props.value.includes(value))
     })
 }
@@ -239,7 +240,7 @@ function toggle(type, el, payload) {
     const { datasetHelper, attr, flag, ignore } = payload
     const isAttr = type === 'attr'
     const typeHandler = TYPE_HANDLERS[type]
-    const props = createProperty(datasetHelper.resolveValues(el, type)[type])[0]
+    const props = createProperty(datasetHelper.resolveValues(el, type)[type])
 
     const settings = {
         [false]: [...props.value, ...toArray(props.add)],
@@ -267,7 +268,7 @@ function toggle(type, el, payload) {
 function generateAttrValue(rootAttr, el, name, datasetHelper) {
     const camelName = toCamelCase(name)
     const attrValues = { ...datasetHelper.resolveValues(el, 'attr'), ...rootAttr }
-    const props = createProperty(attrValues[camelName])[0]
+    const props = createProperty(attrValues[camelName])
     let result = objectEntries(props).reduce((acc, [key, [value]]) => {
         if (hasValue(value)) acc[key] = value
         return acc
